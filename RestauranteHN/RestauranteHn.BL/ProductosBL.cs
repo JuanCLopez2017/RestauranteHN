@@ -31,7 +31,7 @@ namespace RestauranteHn.BL
         public List<Producto> ObtenerProductosActivos()
         {
             ListadeProductos = _contexto.Productos
-                .Include("Categorias")
+                .Include("Categoria")
                 .Where(r => r.Activo == true)
                 .OrderBy(r => r.Descripcion)
                 .ToList();
