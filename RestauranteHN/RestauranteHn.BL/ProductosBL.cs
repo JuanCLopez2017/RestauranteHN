@@ -19,29 +19,49 @@ namespace RestauranteHn.BL
 
         public List<Producto> ObtenerProductos()
         {
-            ListadeProductos= _contexto.Productos.ToList();
+            ListadeProductos = _contexto.Productos
+                .Include("Categoria")
+                .OrderBy(r => r.Categoria.Descripcion)
+                .ThenBy(r => r.Descripcion)
+                .ToList();
+
             return ListadeProductos;
         }
 
-        public void GuardarProducto (Producto producto)
+        public List<Producto> ObtenerProductosActivos()
         {
-            if (producto.Id==0)
+            ListadeProductos = _contexto.Productos
+                .Include("Categorias")
+                .Where(r => r.Activo == true)
+                .OrderBy(r => r.Descripcion)
+                .ToList();
+
+            return ListadeProductos;
+        }
+
+        public void GuardarProducto(Producto producto)
+        {
+            if (producto.Id == 0)
             {
                 _contexto.Productos.Add(producto);
             }
             else
             {
                 var productoExistente = _contexto.Productos.Find(producto.Id);
+
                 productoExistente.Descripcion = producto.Descripcion;
+                productoExistente.CategoriaId = producto.CategoriaId;
                 productoExistente.Precio = producto.Precio;
+                productoExistente.UrlImagen = producto.UrlImagen;
             }
-             
+
             _contexto.SaveChanges();
         }
 
-        public Producto ObtenerProductos (int id)
+        public Producto ObtenerProducto(int id)
         {
-            var producto = _contexto.Productos.Find(id);
+            var producto = _contexto.Productos
+                .Include("Categoria").FirstOrDefault(p => p.Id == id);
 
             return producto;
         }
